@@ -18,6 +18,7 @@ var favouriteRouter = require("./routes/favouritesRouter");
 const uploadRouter = require("./routes/uploadRouter");
 var commentRouter = require('./routes/commentRouter');
 var eventRouter = require("./routes/eventRouter");
+var sportRouter = require("./routes/sportRouter");
 
 const mongoose = require('mongoose');
 
@@ -88,6 +89,7 @@ app.use("/favourites", favouriteRouter);
 app.use("/imageUpload", uploadRouter);
 app.use("/comments", commentRouter);
 app.use("/events", eventRouter);
+app.use("/sports", sportRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
