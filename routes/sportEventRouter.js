@@ -4,24 +4,24 @@ var authenticate = require('../authenticate');
 const cors = require("./cors");
 
 
-const Events = require('../models/events');
+const SportEvents = require('../models/sportEvents');
 
-const eventRouter = express.Router();
+const SportEventRouter = express.Router();
 
-eventRouter.use(express.json());
+SportEventRouter.use(express.json());
 
-eventRouter
+SportEventRouter
   .route("/")
   .options(cors.corsWithOptions, (req, res) => {
     res.sendStatus(200);
   })
   .get(cors.cors, (req, res, next) => {
-    Events.find(req.query)
+    SportEvents.find(req.query)
       .then(
-        (events) => {
+        (SportEvents) => {
           res.statusCode = 200;
           res.setHeader("Content-Type", "application/json");
-          res.json(events);
+          res.json(SportEvents);
         },
         (err) => next(err)
       )
@@ -33,13 +33,13 @@ eventRouter
     authenticate.verifyAdmin,
     (req, res, next) => {
       console.log("user: ", req.user);
-      Events.create(req.body)
+      SportEvents.create(req.body)
         .then(
-          (event) => {
-            console.log("Event Created ", event);
+          (SportEvent) => {
+            console.log("SportEvent Created ", SportEvent);
             res.statusCode = 200;
             res.setHeader("Content-Type", "application/json");
-            res.json(event);
+            res.json(SportEvent);
           },
           (err) => next(err)
         )
@@ -53,7 +53,7 @@ eventRouter
     authenticate.verifyAdmin,
     (req, res, next) => {
       res.statusCode = 403;
-      res.end("PUT operation not supported on /events");
+      res.end("PUT operation not supported on /SportEvents");
     }
   )
   .delete(
@@ -61,7 +61,7 @@ eventRouter
     authenticate.verifyUser,
     authenticate.verifyAdmin,
     (req, res, next) => {
-      Events.remove({})
+      SportEvents.remove({})
         .then(
           (resp) => {
             res.statusCode = 200;
@@ -74,18 +74,18 @@ eventRouter
     }
   );
 
-eventRouter
-  .route("/:eventId")
+SportEventRouter
+  .route("/:SportEventId")
   .options(cors.corsWithOptions, (req, res) => {
     res.sendStatus(200);
   })
   .get(cors.cors, (req, res, next) => {
-    Dishes.findById(req.params.eventId)
+    SportEvents.findById(req.params.SportEventId)
       .then(
-        (event) => {
+        (SportEvent) => {
           res.statusCode = 200;
           res.setHeader("Content-Type", "application/json");
-          res.json(event);
+          res.json(SportEvent);
         },
         (err) => next(err)
       )
@@ -97,7 +97,7 @@ eventRouter
     authenticate.verifyAdmin,
     (req, res, next) => {
       res.statusCode = 403;
-      res.end("POST operation not supported on /events/" + req.params.eventId);
+      res.end("POST operation not supported on /SportEvents/" + req.params.SportEventId);
     }
   )
   .put(
@@ -105,18 +105,18 @@ eventRouter
     authenticate.verifyUser,
     authenticate.verifyAdmin,
     (req, res, next) => {
-      Events.findByIdAndUpdate(
-        req.params.eventId,
+      SportEvents.findByIdAndUpdate(
+        req.params.SportEventId,
         {
           $set: req.body,
         },
         { new: true }
       )
         .then(
-          (event) => {
+          (SportEvent) => {
             res.statusCode = 200;
             res.setHeader("Content-Type", "application/json");
-            res.json(event);
+            res.json(SportEvent);
           },
           (err) => next(err)
         )
@@ -128,7 +128,7 @@ eventRouter
     authenticate.verifyUser,
     authenticate.verifyAdmin,
     (req, res, next) => {
-      Dishes.findByIdAndRemove(req.params.eventId)
+      SportEvents.findByIdAndRemove(req.params.SportEventId)
         .then(
           (resp) => {
             res.statusCode = 200;
@@ -141,4 +141,4 @@ eventRouter
     }
   );
   
-module.exports = eventRouter;
+module.exports = SportEventRouter;
