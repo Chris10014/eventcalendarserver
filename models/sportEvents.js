@@ -12,12 +12,46 @@ const dateSchema = new Schema({
   }
 });
 
+const courseSchema = new Schema({
+  sport: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Sports",
+    required: true
+  },
+  distance: {
+    type: Number,
+    required: true
+  }
+});
+
 const raceSchema = new Schema({
     name: {
         type: String,
         required: true,
     },
-    racedates: [dateSchema]
+    sport: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Sports"
+    },
+    endurance: [{
+      de: {
+        type: String,
+        required:true
+      },
+      en: {
+        type: String
+      }
+    }],
+    racedates: [dateSchema],
+    competition: {
+      type: Boolean,
+      default: true
+    },
+    virtual: {
+      type: Boolean,
+      default: false
+    },
+    courses: [courseSchema]
 });
 
 const SportEventSchema = new Schema(
@@ -36,8 +70,7 @@ const SportEventSchema = new Schema(
       required: true,
     },
     visual: {
-      type: String,
-      required: true,
+      type: String
     },
     homepage: {
       type: String,
