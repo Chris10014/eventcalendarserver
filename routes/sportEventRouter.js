@@ -29,7 +29,6 @@ sportEventRouter
   })
   .post(
     cors.corsWithOptions,
-    authenticate.verifyUser,
     authenticate.verifyAdmin,
     (req, res, next) => {
       console.log("user: ", req.user);
@@ -49,7 +48,6 @@ sportEventRouter
 
   .put(
     cors.corsWithOptions,
-    authenticate.verifyUser,
     authenticate.verifyAdmin,
     (req, res, next) => {
       res.statusCode = 403;
@@ -97,14 +95,17 @@ sportEventRouter
     authenticate.verifyAdmin,
     (req, res, next) => {
       res.statusCode = 403;
-      res.end("POST operation not supported on /SportEvents/" + req.params.SportEventId);
+      res.end(
+        "POST operation not supported on /SportEvents/" +
+          req.params.SportEventId
+      );
     }
   )
   .put(
     cors.corsWithOptions,
-    authenticate.verifyUser,
-    authenticate.verifyAdmin,
+    authenticate.verifyPermission(["editor", "admin"]),
     (req, res, next) => {
+      console.log("from put: ", req.body);
       SportEvents.findByIdAndUpdate(
         req.params.SportEventId,
         {
@@ -272,13 +273,13 @@ sportEventRouter
                 sportEvent != null &&
                 sportEvent.dates.id(req.params.dateId) != null
               ) {
-                if (req.body.rating) {
-                  sportEvent.dates.id(req.params.dateId).rating =
-                    req.body.rating;
+                if (req.body.start) {
+                  sportEvent.dates.id(req.params.dateId).start =
+                    req.body.start;
                 }
-                if (req.body.date) {
-                  sportEvent.dates.id(req.params.dateId).date =
-                    req.body.date;
+                if (req.body.end) {
+                  sportEvent.dates.id(req.params.dateId).end =
+                    req.body.end;
                 }
                 sportEvent.save().then(
                   (sportEvent) => {
@@ -339,9 +340,9 @@ sportEventRouter
       });
       //End routes for dates array within sportEvents
 
-  //Routes for races array within sportEvents
+        //Routes for owners array within sportEvents
   sportEventRouter
-    .route("/:sportEventId/races")
+    .route("/:sportEventId/owners")
     .options(cors.corsWithOptions, (req, res) => {
       res.sendStatus(200);
     })
@@ -352,7 +353,7 @@ sportEventRouter
             if (sportEvent != null) {
               res.statusCode = 200;
               res.setHeader("Content-Type", "application/json");
-              res.json(sportEvent.races);
+              res.json(sportEvent.owners);
             } else {
               err = new Error(
                 "SportEvent " + req.params.sportEventId + " not found"
@@ -370,7 +371,7 @@ sportEventRouter
         .then(
           (sportEvent) => {
             if (sportEvent != null) {
-              sportEvent.races.push(req.body);
+              sportEvent.owners.push(req.body);
               sportEvent.save().then(
                 (sportEvent) => {
                   res.statusCode = 200;
@@ -392,9 +393,9 @@ sportEventRouter
     .put((req, res, next) => {
       res.statusCode = 403;
       res.end(
-        "PUT operation not supported on /sportEventes/" +
+        "PUT operation not supported on /sportEvents/" +
           req.params.sportEventId +
-          "/races"
+          "/owners"
       );
     })
     .delete((req, res, next) => {
@@ -402,8 +403,8 @@ sportEventRouter
         .then(
           (sportEvent) => {
             if (sportEvent != null) {
-              for (var i = sportEvent.races.length - 1; i >= 0; i--) {
-                sportEvent.races.id(sportEvent.races[i]._id).remove();
+              for (var i = sportEvent.owners.length - 1; i >= 0; i--) {
+                sportEvent.owners.id(sportEvent.owners[i]._id).remove();
               }
               sportEvent.save().then(
                 (sportEvent) => {
@@ -425,25 +426,25 @@ sportEventRouter
     });
 
     sportEventRouter
-      .route("/:sportEventId/races/:raceId")
+      .route("/:sportEventId/owners/:ownerId")
       .get((req, res, next) => {
         SportEvents.findById(req.params.sportEventId)
           .then(
             (sportEvent) => {
               if (
                 sportEvent != null &&
-                sportEvent.races.id(req.params.raceId) != null
+                sportEvent.owners.id(req.params.ownerId) != null
               ) {
                 res.statusCode = 200;
                 res.setHeader("Content-Type", "application/json");
-                res.json(sportEvent.races.id(req.params.raceId));
+                res.json(sportEvent.owners.id(req.params.ownerId));
               } else if (sportEvent == null) {
                 err = new Error("SportEvent " + req.params.sportEventId + " not found");
                 err.status = 404;
                 return next(err);
               } else {
                 err = new Error(
-                  "Race " + req.params.raceId + " not found"
+                  "Owner " + req.params.ownerId + " not found"
                 );
                 err.status = 404;
                 return next(err);
@@ -458,8 +459,8 @@ sportEventRouter
         res.end(
           "POST operation not supported on /sportEvents/" +
             req.params.sportEventId +
-            "/races/" +
-            req.params.raceId
+            "/owners/" +
+            req.params.ownerId
         );
       })
       .put((req, res, next) => {
@@ -468,15 +469,15 @@ sportEventRouter
             (sportEvent) => {
               if (
                 sportEvent != null &&
-                sportEvent.races.id(req.params.raceId) != null
+                sportEvent.owners.id(req.params.ownerId) != null
               ) {
-                if (req.body.rating) {
-                  sportEvent.races.id(req.params.raceId).rating =
-                    req.body.rating;
+                if (req.body.start) {
+                  sportEvent.owners.id(req.params.ownerId).start =
+                    req.body.start;
                 }
-                if (req.body.race) {
-                  sportEvent.races.id(req.params.raceId).race =
-                    req.body.race;
+                if (req.body.end) {
+                  sportEvent.owners.id(req.params.ownerId).end =
+                    req.body.end;
                 }
                 sportEvent.save().then(
                   (sportEvent) => {
@@ -492,7 +493,7 @@ sportEventRouter
                 return next(err);
               } else {
                 err = new Error(
-                  "Race " + req.params.raceId + " not found"
+                  "Owner " + req.params.ownerId + " not found"
                 );
                 err.status = 404;
                 return next(err);
@@ -508,9 +509,9 @@ sportEventRouter
             (sportEvent) => {
               if (
                 sportEvent != null &&
-                sportEvent.races.id(req.params.raceId) != null
+                sportEvent.owners.id(req.params.ownerId) != null
               ) {
-                sportEvent.races.id(req.params.raceId).remove();
+                sportEvent.owners.id(req.params.ownerId).remove();
                 sportEvent.save().then(
                   (sportEvent) => {
                     res.statusCode = 200;
@@ -525,7 +526,7 @@ sportEventRouter
                 return next(err);
               } else {
                 err = new Error(
-                  "Race " + req.params.raceId + " not found"
+                  "Owner " + req.params.ownerId + " not found"
                 );
                 err.status = 404;
                 return next(err);
@@ -535,7 +536,9 @@ sportEventRouter
           )
           .catch((err) => next(err));
       });
-      //End routes for races array within sportEvents
+      //End routes for owners array within sportEvents
+
+
 
 
 

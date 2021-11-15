@@ -19,6 +19,7 @@ var User = new Schema({
     type: Boolean,
     default: false,
   },
+  roles:[{type: String}]
 });
 
 User.plugin(passportLocalMongoose);

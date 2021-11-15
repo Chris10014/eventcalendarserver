@@ -19,6 +19,7 @@ const uploadRouter = require("./routes/uploadRouter");
 var sportEventRouter = require("./routes/sportEventRouter");
 var sportRouter = require("./routes/sportRouter");
 var countryRouter = require("./routes/countryRouter");
+var raceRouter = require("./routes/raceRouter");
 
 const mongoose = require("mongoose");
 
@@ -95,6 +96,7 @@ app.use("/imageUpload", uploadRouter);
 app.use("/sportEvents", sportEventRouter);
 app.use("/sports", sportRouter);
 app.use("/countries", countryRouter);
+app.use("/races", raceRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

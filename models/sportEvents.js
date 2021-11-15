@@ -2,59 +2,19 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const dateSchema = new Schema({
-  from: {
+  start: {
     type: Date,
-    default: ""
+    required: true,
   },
-  to: {
+  end: {
     type: Date,
     default:  ""
   }
 });
 
-const courseSchema = new Schema({
-  sport: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Sports",
-    required: true
-  },
-  distance: {
-    type: Number,
-    required: true
-  }
-});
 
-const raceSchema = new Schema({
-    name: {
-        type: String,
-        required: true,
-    },
-    sport: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Sports"
-    },
-    endurance: [{
-      de: {
-        type: String,
-        required:true
-      },
-      en: {
-        type: String
-      }
-    }],
-    racedates: [dateSchema],
-    competition: {
-      type: Boolean,
-      default: true
-    },
-    virtual: {
-      type: Boolean,
-      default: false
-    },
-    courses: [courseSchema]
-});
 
-const SportEventSchema = new Schema(
+const sportEventSchema = new Schema(
   {
     name: {
       type: String,
@@ -89,21 +49,29 @@ const SportEventSchema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Countries"
     },
-    createdBy: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
-    },
+    owners: [
+      {
+        owner: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User"
+        }
+        
+      }
+    ],
     featured: {
       type: Boolean,
       default: false,
     },
-    races: [raceSchema],
+    races: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Races"
+    }],
   },
   {
     timestamps: true,
   }
 );
 
-var SportEvents = mongoose.model("SportEvent", SportEventSchema);
+var SportEvents = mongoose.model("SportEvent", sportEventSchema);
 
 module.exports = SportEvents;

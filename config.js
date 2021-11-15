@@ -2,7 +2,7 @@
 
 module.exports = {
   secretKey: process.env.SECRET_KEY,
-  mongoUrl: "mongodb://localhost:27017/sportevents",
+  mongoUrl: process.env.MONGO_URL,
   facebook: {
     clientId: process.env.FACEBOOK_CLIENT_ID,
     clientSecret: process.env.FACEBOOK_CLIENTSECRET,

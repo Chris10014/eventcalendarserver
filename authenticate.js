@@ -44,11 +44,28 @@ exports.verifyAdmin = function (req, res, next) {
     if(req.user.admin) {
         return next();
     } else {
-        var err = new Error('You are not authorized to perform this operation!');
+        var err = new Error("You don't have Admin role to perform this operation");
         err.status = 403;
         return next(err);
     }
 };
+
+exports.verifyPermission = (roles = []) => {
+  var check = 0;
+  return (req, res, next) => {
+  roles.forEach((role, idx) => {
+    if (req.user.roles.indexOf(role) !== -1) {
+      check ++;
+  }}) 
+  if(check > 0) {
+    return next();
+  } else {
+    var err = new Error("You are not authorized to perform this operation!");
+    err.status = 403;
+    console.log("err", (err));
+    return next(err); 
+  }
+}};
 
 exports.facebookPassport = passport.use(
   new FacebookTokenStrategy(
