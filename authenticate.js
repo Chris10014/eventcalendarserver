@@ -53,18 +53,22 @@ exports.verifyAdmin = function (req, res, next) {
 exports.verifyPermission = (roles = []) => {
   var check = 0;
   return (req, res, next) => {
-  roles.forEach((role, idx) => {
-    if (req.user.roles.indexOf(role) !== -1) {
-      check ++;
-  }}) 
-  if(check > 0) {
-    return next();
-  } else {
-    var err = new Error("You are not authorized to perform this operation!");
-    err.status = 403;
-    console.log("err", (err));
-    return next(err); 
-  }
+    if(req.user.admin) {//admin users have access to all routes
+      return next();
+    } else {
+      roles.forEach((role, idx) => {
+        if (req.user.roles.indexOf(role) !== -1) {
+          check ++;
+      }}) 
+      if(check > 0) {
+        return next();
+      } else {
+        var err = new Error("You are not authorized to perform this operation!");
+        err.status = 403;
+        console.log("err", (err));
+        return next(err); 
+      }
+    }  
 }};
 
 exports.facebookPassport = passport.use(
