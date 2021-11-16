@@ -103,7 +103,8 @@ sportEventRouter
   )
   .put(
     cors.corsWithOptions,
-    authenticate.verifyPermission(["editor", "admin"]),
+    authenticate.verifyUser,
+    authenticate.verifyEditor,
     (req, res, next) => {
       console.log("from put: ", req.body);
       SportEvents.findByIdAndUpdate(

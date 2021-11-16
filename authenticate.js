@@ -50,26 +50,43 @@ exports.verifyAdmin = function (req, res, next) {
     }
 };
 
-exports.verifyPermission = (roles = []) => {
-  var check = 0;
-  return (req, res, next) => {
-    if(req.user.admin) {//admin users have access to all routes
-      return next();
+exports.verifyEditor = (req, res, next) => {
+  console.log("Admin true: ", req.user.admin);
+  console.log("Users roles: ", req.user.roles);
+  if(req.user.admin) {
+        return next();
     } else {
-      roles.forEach((role, idx) => {
-        if (req.user.roles.indexOf(role) !== -1) {
-          check ++;
-      }}) 
-      if(check > 0) {
+      if(req.user.roles.indexOf("editor") !== -1) {
         return next();
       } else {
-        var err = new Error("You are not authorized to perform this operation!");
+        var err = new Error(
+          "You are not authorized to perform this operation!"
+        );
         err.status = 403;
-        console.log("err", (err));
-        return next(err); 
+        console.log("err", err);
+        return next(err);
       }
-    }  
-}};
+    }
+}
+
+// // middleware for doing role-based permissions
+// exports.verifyPermisson = (permittedRoles) => {
+//   // return a middleware
+//   return (request, response, next) => {
+//     const { user } = request
+
+//     if (user && permittedRoles.includes(user.roles)) {
+//       return next(); // role is allowed, so continue on the next middleware
+//     } else {
+//       var err = new Error(
+//           "You are not authorized to perform this operation!"
+//         );
+//         err.status = 403;
+//         console.log("err", err);
+//         return next(err);
+//     }
+//   }
+// };
 
 exports.facebookPassport = passport.use(
   new FacebookTokenStrategy(
