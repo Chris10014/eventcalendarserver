@@ -20,6 +20,8 @@ var sportEventRouter = require("./routes/sportEventRouter");
 var sportRouter = require("./routes/sportRouter");
 var countryRouter = require("./routes/countryRouter");
 var raceRouter = require("./routes/raceRouter");
+var teamRouter = require("./routes/teamRouter");
+var dateRouter = require("./routes/dateRouter");
 
 const mongoose = require("mongoose");
 
@@ -97,6 +99,8 @@ app.use("/sportEvents", sportEventRouter);
 app.use("/sports", sportRouter);
 app.use("/countries", countryRouter);
 app.use("/races", raceRouter);
+app.use("/teams", teamRouter);
+app.use("/dates", dateRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

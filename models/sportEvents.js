@@ -1,18 +1,26 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const dateSchema = new Schema({
-  start: {
-    type: Date,
-    required: true,
-  },
-  end: {
-    type: Date,
-    default:  ""
+const ownerSchema = new Schema({
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User"
   }
 });
 
+const raceSchema = new Schema({
+  race: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Race"
+  }
+});
 
+const dateSchema = new Schema({
+  date: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Date"
+  }
+});
 
 const sportEventSchema = new Schema(
   {
@@ -21,16 +29,17 @@ const sportEventSchema = new Schema(
       required: true,
       unique: true,
     },
-    host: {
-      type: String,
-      required: true,
+    organiser: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Team",
+      required: true
     },
     logo: {
       type: String,
       required: true,
     },
     visual: {
-      type: String
+      type: String,
     },
     homepage: {
       type: String,
@@ -42,30 +51,21 @@ const sportEventSchema = new Schema(
       required: true,
     },
     postalCode: {
-        type: Number,
-        required: true
+      type: Number,
+      required: true,
     },
     country: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Countries"
+      ref: "Country",
+      required: true,
     },
-    owners: [
-      {
-        owner: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "User"
-        }
-        
-      }
-    ],
+    owners: [ownerSchema],
+
     featured: {
       type: Boolean,
       default: false,
     },
-    races: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Races"
-    }],
+    races: [raceSchema],
   },
   {
     timestamps: true,

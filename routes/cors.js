@@ -6,6 +6,7 @@ const whitelist = [
   "http://localhost:3000",
   "https://localhost:3443",
   "http://localhost:3001",
+  "http://localhost:3002",
 ];
 var corsOptionsDelegate = (req, callback) => {
   var corsOptions;

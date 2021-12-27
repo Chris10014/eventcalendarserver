@@ -16,7 +16,29 @@ sportEventRouter
     res.sendStatus(200);
   })
   .get(cors.cors, (req, res, next) => {
-    SportEvents.find(req.query)
+    SportEvents.find(req.query) //req.query handles search param fom the url ""...?param=value"
+      .populate("country")
+      .populate("organiser")
+      .populate({
+        path: "dates",
+        populate: {
+          path: "date",
+          model: "Date"
+        },
+      })
+      .populate({
+        path: "races",
+        populate: {
+          path: "race",
+          populate: {
+            path: "courses",
+            populate: {
+              path: "sport",
+              model: "Sport",
+            },
+          },          
+        },
+      })
       .then(
         (SportEvents) => {
           res.statusCode = 200;
@@ -29,7 +51,8 @@ sportEventRouter
   })
   .post(
     cors.corsWithOptions,
-    authenticate.verifyAdmin,
+    authenticate.verifyUser,
+    authenticate.verifyEditor,
     (req, res, next) => {
       console.log("user: ", req.user);
       SportEvents.create(req.body)
@@ -45,10 +68,8 @@ sportEventRouter
         .catch((err) => next(err));
     }
   )
-
   .put(
     cors.corsWithOptions,
-    authenticate.verifyAdmin,
     (req, res, next) => {
       res.statusCode = 403;
       res.end("PUT operation not supported on /SportEvents");
@@ -73,12 +94,38 @@ sportEventRouter
   );
 
 sportEventRouter
-  .route("/:SportEventId")
+  .route("/:sportEventId")
   .options(cors.corsWithOptions, (req, res) => {
     res.sendStatus(200);
   })
   .get(cors.cors, (req, res, next) => {
-    SportEvents.findById(req.params.SportEventId)
+    SportEvents.findById(req.params.sportEventId)
+      .populate("country")
+      .populate("organiser")
+      .populate({
+        path: "races",
+        populate: {
+          path: "race",
+          populate: {
+            path: "sport",
+            model: "Sport",
+          },
+        },
+      })
+      .populate({
+        path: "races",
+        populate: {
+          path: "race",
+          populate: {
+            path: "courses",
+            model: "Race",
+            populate: {
+              path: "sport",
+              model: "Sport",
+            },
+          },
+        },
+      })
       .then(
         (SportEvent) => {
           res.statusCode = 200;
@@ -91,24 +138,22 @@ sportEventRouter
   })
   .post(
     cors.corsWithOptions,
-    authenticate.verifyUser,
-    authenticate.verifyAdmin,
     (req, res, next) => {
       res.statusCode = 403;
       res.end(
         "POST operation not supported on /SportEvents/" +
-          req.params.SportEventId
+          req.params.sportEventId
       );
     }
   )
   .put(
     cors.corsWithOptions,
     authenticate.verifyUser,
-    authenticate.verifyEditor,
+    authenticate.verifyOwner,
     (req, res, next) => {
       console.log("from put: ", req.body);
       SportEvents.findByIdAndUpdate(
-        req.params.SportEventId,
+        req.params.sportEventId,
         {
           $set: req.body,
         },
@@ -130,7 +175,7 @@ sportEventRouter
     authenticate.verifyUser,
     authenticate.verifyAdmin,
     (req, res, next) => {
-      SportEvents.findByIdAndRemove(req.params.SportEventId)
+      SportEvents.findByIdAndRemove(req.params.sportEventId)
         .then(
           (resp) => {
             res.statusCode = 200;
@@ -169,64 +214,81 @@ sportEventRouter
         )
         .catch((err) => next(err));
     })
-    .post((req, res, next) => {
-      SportEvents.findById(req.params.sportEventId)
-        .then(
-          (sportEvent) => {
-            if (sportEvent != null) {
-              sportEvent.dates.push(req.body);
-              sportEvent.save().then(
-                (sportEvent) => {
-                  res.statusCode = 200;
-                  res.setHeader("Content-Type", "application/json");
-                  res.json(sportEvent);
-                },
-                (err) => next(err)
-              );
-            } else {
-              err = new Error("SportEvent " + req.params.sportEventId + " not found");
-              err.status = 404;
-              return next(err);
-            }
-          },
-          (err) => next(err)
-        )
-        .catch((err) => next(err));
-    })
-    .put((req, res, next) => {
-      res.statusCode = 403;
-      res.end(
-        "PUT operation not supported on /sportEventes/" +
-          req.params.sportEventId +
-          "/dates"
-      );
-    })
-    .delete((req, res, next) => {
-      SportEvents.findById(req.params.sportEventId)
-        .then(
-          (sportEvent) => {
-            if (sportEvent != null) {
-              for (var i = sportEvent.dates.length - 1; i >= 0; i--) {
-                sportEvent.dates.id(sportEvent.dates[i]._id).remove();
+    .post(
+      authenticate.verifyUser,
+      authenticate.verifyEditor,
+      (req, res, next) => {
+        SportEvents.findById(req.params.sportEventId)
+          .then(
+            (sportEvent) => {
+              if (sportEvent != null) {
+                sportEvent.dates.push(req.body);
+                sportEvent.save().then(
+                  (sportEvent) => {
+                    res.statusCode = 200;
+                    res.setHeader("Content-Type", "application/json");
+                    res.json(sportEvent);
+                  },
+                  (err) => next(err)
+                );
+              } else {
+                err = new Error(
+                  "SportEvent " + req.params.sportEventId + " not found"
+                );
+                err.status = 404;
+                return next(err);
               }
-              sportEvent.save().then(
-                (sportEvent) => {
-                  res.statusCode = 200;
-                  res.setHeader("Content-Type", "application/json");
-                  res.json(sportEvent);
-                },
-                (err) => next(err)
-              );
-            } else {
-              err = new Error("SportEvent " + req.params.sportEventId + " not found");
-              err.status = 404;
-              return next(err);
-            }
-          },
-          (err) => next(err)
-        )
-        .catch((err) => next(err));
-    });
+            },
+            (err) => next(err)
+          )
+          .catch((err) => next(err));
+      }
+    )
+    .put(
+      authenticate.verifyUser,
+      authenticate.verifyOwner,
+      (req, res, next) => {
+        res.statusCode = 403;
+        res.end(
+          "PUT operation not supported on /sportEventes/" +
+            req.params.sportEventId +
+            "/dates"
+        );
+      }
+    )
+    .delete(
+      authenticate.verifyUser,
+      authenticate.verifyAdmin,
+      (req, res, next) => {
+        console.log("Admin delete: ", req.user.admin);
+        SportEvents.findById(req.params.sportEventId)
+          .then(
+            (sportEvent) => {
+              if (sportEvent != null) {
+                for (var i = sportEvent.dates.length - 1; i >= 0; i--) {
+                  sportEvent.dates.id(sportEvent.dates[i]._id).remove();
+                }
+                sportEvent.save().then(
+                  (sportEvent) => {
+                    res.statusCode = 200;
+                    res.setHeader("Content-Type", "application/json");
+                    res.json(sportEvent);
+                  },
+                  (err) => next(err)
+                );
+              } else {
+                err = new Error(
+                  "SportEvent " + req.params.sportEventId + " not found"
+                );
+                err.status = 404;
+                return next(err);
+              }
+            },
+            (err) => next(err)
+          )
+          .catch((err) => next(err));
+      }
+    );
 
     sportEventRouter
       .route("/:sportEventId/dates/:dateId")
@@ -242,13 +304,13 @@ sportEventRouter
                 res.setHeader("Content-Type", "application/json");
                 res.json(sportEvent.dates.id(req.params.dateId));
               } else if (sportEvent == null) {
-                err = new Error("SportEvent " + req.params.sportEventId + " not found");
+                err = new Error(
+                  "SportEvent " + req.params.sportEventId + " not found"
+                );
                 err.status = 404;
                 return next(err);
               } else {
-                err = new Error(
-                  "Date " + req.params.dateId + " not found"
-                );
+                err = new Error("Date " + req.params.dateId + " not found");
                 err.status = 404;
                 return next(err);
               }
@@ -258,97 +320,112 @@ sportEventRouter
           .catch((err) => next(err));
       })
       .post((req, res, next) => {
-        res.statusCode = 403;
-        res.end(
-          "POST operation not supported on /sportEvents/" +
-            req.params.sportEventId +
-            "/dates/" +
-            req.params.dateId
-        );
-      })
-      .put((req, res, next) => {
-        SportEvents.findById(req.params.sportEventId)
-          .then(
-            (sportEvent) => {
-              if (
-                sportEvent != null &&
-                sportEvent.dates.id(req.params.dateId) != null
-              ) {
-                if (req.body.start) {
-                  sportEvent.dates.id(req.params.dateId).start =
-                    req.body.start;
+          res.statusCode = 403;
+          res.end(
+            "POST operation not supported on /sportEvents/" +
+              req.params.sportEventId +
+              "/dates/" +
+              req.params.dateId
+          );
+        }
+      )
+      .put(
+        authenticate.verifyUser,
+        authenticate.verifyOwner,
+        (req, res, next) => {
+          SportEvents.findById(req.params.sportEventId)
+            .then(
+              (sportEvent) => {
+                if (
+                  sportEvent != null &&
+                  sportEvent.dates.id(req.params.dateId) != null
+                ) {
+                  if (req.body.start) {
+                    sportEvent.dates.id(req.params.dateId).start =
+                      req.body.start;
+                  }
+                  if (req.body.end) {
+                    sportEvent.dates.id(req.params.dateId).end = req.body.end;
+                  }
+                  sportEvent.save().then(
+                    (sportEvent) => {
+                      res.statusCode = 200;
+                      res.setHeader("Content-Type", "application/json");
+                      res.json(sportEvent);
+                    },
+                    (err) => next(err)
+                  );
+                } else if (sportEvent == null) {
+                  err = new Error(
+                    "SportEvent " + req.params.sportEventId + " not found"
+                  );
+                  err.status = 404;
+                  return next(err);
+                } else {
+                  err = new Error("Date " + req.params.dateId + " not found");
+                  err.status = 404;
+                  return next(err);
                 }
-                if (req.body.end) {
-                  sportEvent.dates.id(req.params.dateId).end =
-                    req.body.end;
+              },
+              (err) => next(err)
+            )
+            .catch((err) => next(err));
+        }
+      )
+      .delete(
+        authenticate.verifyUser,
+        authenticate.verifyOwner,
+        (req, res, next) => {
+          SportEvents.findById(req.params.sportEventId)
+            .then(
+              (sportEvent) => {
+                if (
+                  sportEvent != null &&
+                  sportEvent.dates.id(req.params.dateId) != null
+                ) {
+                  sportEvent.dates.id(req.params.dateId).remove();
+                  sportEvent.save().then(
+                    (sportEvent) => {
+                      res.statusCode = 200;
+                      res.setHeader("Content-Type", "application/json");
+                      res.json(sportEvent);
+                    },
+                    (err) => next(err)
+                  );
+                } else if (sportEvent == null) {
+                  err = new Error(
+                    "SportEvent " + req.params.sportEventId + " not found"
+                  );
+                  err.status = 404;
+                  return next(err);
+                } else {
+                  err = new Error("Date " + req.params.dateId + " not found");
+                  err.status = 404;
+                  return next(err);
                 }
-                sportEvent.save().then(
-                  (sportEvent) => {
-                    res.statusCode = 200;
-                    res.setHeader("Content-Type", "application/json");
-                    res.json(sportEvent);
-                  },
-                  (err) => next(err)
-                );
-              } else if (sportEvent == null) {
-                err = new Error("SportEvent " + req.params.sportEventId + " not found");
-                err.status = 404;
-                return next(err);
-              } else {
-                err = new Error(
-                  "Date " + req.params.dateId + " not found"
-                );
-                err.status = 404;
-                return next(err);
-              }
-            },
-            (err) => next(err)
-          )
-          .catch((err) => next(err));
-      })
-      .delete((req, res, next) => {
-        SportEvents.findById(req.params.sportEventId)
-          .then(
-            (sportEvent) => {
-              if (
-                sportEvent != null &&
-                sportEvent.dates.id(req.params.dateId) != null
-              ) {
-                sportEvent.dates.id(req.params.dateId).remove();
-                sportEvent.save().then(
-                  (sportEvent) => {
-                    res.statusCode = 200;
-                    res.setHeader("Content-Type", "application/json");
-                    res.json(sportEvent);
-                  },
-                  (err) => next(err)
-                );
-              } else if (sportEvent == null) {
-                err = new Error("SportEvent " + req.params.sportEventId + " not found");
-                err.status = 404;
-                return next(err);
-              } else {
-                err = new Error(
-                  "Date " + req.params.dateId + " not found"
-                );
-                err.status = 404;
-                return next(err);
-              }
-            },
-            (err) => next(err)
-          )
-          .catch((err) => next(err));
-      });
+              },
+              (err) => next(err)
+            )
+            .catch((err) => next(err));
+        }
+      );
       //End routes for dates array within sportEvents
 
-        //Routes for owners array within sportEvents
+  //Routes for owners array within sportEvents
   sportEventRouter
     .route("/:sportEventId/owners")
-    .options(cors.corsWithOptions, (req, res) => {
+    .options(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
       res.sendStatus(200);
     })
-    .get(cors.cors, (req, res, next) => {
+    .get(cors.cors, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
       SportEvents.findById(req.params.sportEventId)
+        .populate({
+          path: "owners",
+          populate: {
+            path:  "owner",
+            model: "User"
+          }
+        })
         .then(
           (sportEvent) => {
             if (sportEvent != null) {
@@ -367,11 +444,12 @@ sportEventRouter
         )
         .catch((err) => next(err));
     })
-    .post((req, res, next) => {
+    .post(authenticate.verifyUser, authenticate.verifyOwner, (req, res, next) => {
       SportEvents.findById(req.params.sportEventId)
         .then(
           (sportEvent) => {
             if (sportEvent != null) {
+              console.log("Body: ", req.body);
               sportEvent.owners.push(req.body);
               sportEvent.save().then(
                 (sportEvent) => {
@@ -399,12 +477,12 @@ sportEventRouter
           "/owners"
       );
     })
-    .delete((req, res, next) => {
+    .delete(authenticate.verifyUser, authenticate.verifyOwner, (req, res, next) => {
       SportEvents.findById(req.params.sportEventId)
         .then(
           (sportEvent) => {
             if (sportEvent != null) {
-              for (var i = sportEvent.owners.length - 1; i >= 0; i--) {
+              for (var i = sportEvent.owners.length - 1; i > 0; i--) { //At least onne owner remains
                 sportEvent.owners.id(sportEvent.owners[i]._id).remove();
               }
               sportEvent.save().then(
@@ -426,10 +504,18 @@ sportEventRouter
         .catch((err) => next(err));
     });
 
+  
     sportEventRouter
       .route("/:sportEventId/owners/:ownerId")
       .get((req, res, next) => {
         SportEvents.findById(req.params.sportEventId)
+          .populate({
+            path: "owners",
+            populate: {
+              path: "owner",
+              model: "User",
+            },
+          })
           .then(
             (sportEvent) => {
               if (
@@ -440,13 +526,13 @@ sportEventRouter
                 res.setHeader("Content-Type", "application/json");
                 res.json(sportEvent.owners.id(req.params.ownerId));
               } else if (sportEvent == null) {
-                err = new Error("SportEvent " + req.params.sportEventId + " not found");
+                err = new Error(
+                  "SportEvent " + req.params.sportEventId + " not found"
+                );
                 err.status = 404;
                 return next(err);
               } else {
-                err = new Error(
-                  "Owner " + req.params.ownerId + " not found"
-                );
+                err = new Error("Owner " + req.params.ownerId + " not found");
                 err.status = 404;
                 return next(err);
               }
@@ -538,9 +624,5 @@ sportEventRouter
           .catch((err) => next(err));
       });
       //End routes for owners array within sportEvents
-
-
-
-
 
 module.exports = sportEventRouter;

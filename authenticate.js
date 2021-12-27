@@ -5,6 +5,7 @@ var JwtStrategy = require('passport-jwt').Strategy;
 var ExtractJwt = require('passport-jwt').ExtractJwt;
 var jwt = require('jsonwebtoken'); // used to create, sign, and verify tokens
 var FacebookTokenStrategy = require("passport-facebook-token");
+const SportEvents = require("./models/sportEvents");
 
 
 var config = require('./config.js');
@@ -51,8 +52,6 @@ exports.verifyAdmin = function (req, res, next) {
 };
 
 exports.verifyEditor = (req, res, next) => {
-  console.log("Admin true: ", req.user.admin);
-  console.log("Users roles: ", req.user.roles);
   if(req.user.admin) {
         return next();
     } else {
@@ -67,26 +66,34 @@ exports.verifyEditor = (req, res, next) => {
         return next(err);
       }
     }
+};
+
+exports.verifyOwner = (req, res, next) => {
+  if(req.user.admin) {
+    return next();
+  } else {
+  var isOwner = false;
+  SportEvents.findById(req.params.sportEventId)
+  .then((sportEvent) => {
+    sportEvent.owners.forEach((owner) => {
+      if(owner.equals(req.user._id)) {
+        isOwner = true;
+      }
+    })
+    if(isOwner === true){
+      return next();
+    } else {
+      var err = new Error(
+          "You are not owner and not authorized to perform this operation!"
+        );
+        err.status = 403;
+        console.log("err", err);
+        return next(err);
+    }
+
+  }) .catch((err) => next(err));
 }
-
-// // middleware for doing role-based permissions
-// exports.verifyPermisson = (permittedRoles) => {
-//   // return a middleware
-//   return (request, response, next) => {
-//     const { user } = request
-
-//     if (user && permittedRoles.includes(user.roles)) {
-//       return next(); // role is allowed, so continue on the next middleware
-//     } else {
-//       var err = new Error(
-//           "You are not authorized to perform this operation!"
-//         );
-//         err.status = 403;
-//         console.log("err", err);
-//         return next(err);
-//     }
-//   }
-// };
+};
 
 exports.facebookPassport = passport.use(
   new FacebookTokenStrategy(

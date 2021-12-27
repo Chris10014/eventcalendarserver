@@ -16,6 +16,14 @@ raceRouter
   })
   .get(cors.cors, (req, res, next) => {
     Races.find(req.query)
+    .populate("sport")
+    .populate({
+        path: "courses",
+        populate: {
+          path: "sport",
+          model: "Sport"
+        }
+    })
       .then(
         (Races) => {
           res.statusCode = 200;
@@ -80,6 +88,14 @@ raceRouter
   })
   .get(cors.cors, (req, res, next) => {
     Races.findById(req.params.RaceId)
+    .populate("sport")
+    .populate({
+        path: "courses",
+        populate: {
+          path: "sport",
+          model: "Sport"
+        }
+    })
       .then(
         (Race) => {
           res.statusCode = 200;

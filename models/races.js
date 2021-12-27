@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const courseSchema = new Schema({
   sport: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Sports",
+    ref: "Sport",
     required: true,
   },
   distance: {
@@ -20,14 +20,8 @@ const raceSchema = new Schema({
   },
   sport: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Sports",
+    ref: "Sport",
   },
-  racedates: [{
-      start: {
-        type: Date,
-        required: true
-      }    
-  }],
   competition: {
     type: Boolean,
     default: true,
