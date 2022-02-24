@@ -36,7 +36,6 @@ const sportEventSchema = new Schema(
     },
     logo: {
       type: String,
-      required: true,
     },
     visual: {
       type: String,

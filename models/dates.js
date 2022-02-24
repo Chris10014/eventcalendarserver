@@ -12,8 +12,7 @@ const dateSchema = new Schema({
   },
   sportEvent: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "SportEvent",
-    required: true
+    ref: "SportEvent"
   }
 });
 

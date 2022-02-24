@@ -77,7 +77,7 @@ dateRouter
       Dates.create(req.body)
         .then(
           (date) => {
-            console.log("Sport Created ", date);
+            
             res.statusCode = 200;
             res.setHeader("Content-Type", "application/json");
             res.json(date);

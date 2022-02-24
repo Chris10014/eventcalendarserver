@@ -1,27 +1,27 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-var authenticate = require('../authenticate');
+var authenticate = require("../authenticate");
 const cors = require("./cors");
 
+const Participants = require("../models/participants");
 
-const Dishes = require('../models/dishes');
+const participantRouter = express.Router();
 
-const dishRouter = express.Router();
+participantRouter.use(express.json());
 
-dishRouter.use(express.json());
-
-dishRouter
+participantRouter
   .route("/")
   .options(cors.corsWithOptions, (req, res) => {
     res.sendStatus(200);
   })
   .get(cors.cors, (req, res, next) => {
-    Dishes.find(req.query)
+    Participants.find(req.query)
+    .populate("team")
       .then(
-        (dishes) => {
+        (Participants) => {
           res.statusCode = 200;
           res.setHeader("Content-Type", "application/json");
-          res.json(dishes);
+          res.json(Participants);
         },
         (err) => next(err)
       )
@@ -29,17 +29,15 @@ dishRouter
   })
   .post(
     cors.corsWithOptions,
-    authenticate.verifyUser,
-    authenticate.verifyAdmin,
     (req, res, next) => {
       console.log("user: ", req.user);
-      Dishes.create(req.body)
+      Participants.create(req.body)
         .then(
-          (dish) => {
-            console.log("Dish Created ", dish);
+          (Participant) => {
+            console.log("Participant Created ", Participant);
             res.statusCode = 200;
             res.setHeader("Content-Type", "application/json");
-            res.json(dish);
+            res.json(Participant);
           },
           (err) => next(err)
         )
@@ -53,7 +51,7 @@ dishRouter
     authenticate.verifyAdmin,
     (req, res, next) => {
       res.statusCode = 403;
-      res.end("PUT operation not supported on /dishes");
+      res.end("PUT operation not supported on /Participants");
     }
   )
   .delete(
@@ -61,7 +59,7 @@ dishRouter
     authenticate.verifyUser,
     authenticate.verifyAdmin,
     (req, res, next) => {
-      Dishes.remove({})
+      Participants.remove({})
         .then(
           (resp) => {
             res.statusCode = 200;
@@ -74,18 +72,18 @@ dishRouter
     }
   );
 
-dishRouter
-  .route("/:dishId")
+participantRouter
+  .route("/:ParticipantId")
   .options(cors.corsWithOptions, (req, res) => {
     res.sendStatus(200);
   })
   .get(cors.cors, (req, res, next) => {
-    Dishes.findById(req.params.dishId)
+    Participants.findById(req.params.ParticipantId)
       .then(
-        (dish) => {
+        (Participant) => {
           res.statusCode = 200;
           res.setHeader("Content-Type", "application/json");
-          res.json(dish);
+          res.json(Participant);
         },
         (err) => next(err)
       )
@@ -93,30 +91,29 @@ dishRouter
   })
   .post(
     cors.corsWithOptions,
-    authenticate.verifyUser,
-    authenticate.verifyAdmin,
     (req, res, next) => {
       res.statusCode = 403;
-      res.end("POST operation not supported on /dishes/" + req.params.dishId);
+      res.end(
+        "POST operation not supported on /Participants/" +
+          req.params.ParticipantId
+      );
     }
   )
   .put(
     cors.corsWithOptions,
-    authenticate.verifyUser,
-    authenticate.verifyAdmin,
     (req, res, next) => {
-      Dishes.findByIdAndUpdate(
-        req.params.dishId,
+      Participants.findByIdAndUpdate(
+        req.params.ParticipantId,
         {
           $set: req.body,
         },
         { new: true }
       )
         .then(
-          (dish) => {
+          (Participant) => {
             res.statusCode = 200;
             res.setHeader("Content-Type", "application/json");
-            res.json(dish);
+            res.json(Participant);
           },
           (err) => next(err)
         )
@@ -128,7 +125,7 @@ dishRouter
     authenticate.verifyUser,
     authenticate.verifyAdmin,
     (req, res, next) => {
-      Dishes.findByIdAndRemove(req.params.dishId)
+      Participants.findByIdAndRemove(req.params.ParticipantId)
         .then(
           (resp) => {
             res.statusCode = 200;
@@ -140,5 +137,8 @@ dishRouter
         .catch((err) => next(err));
     }
   );
-  
-module.exports = dishRouter;
+
+
+//End routes for courses array within participants
+
+module.exports = participantRouter;

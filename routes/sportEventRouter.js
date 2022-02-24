@@ -23,7 +23,7 @@ sportEventRouter
         path: "dates",
         populate: {
           path: "date",
-          model: "Date"
+          model: "Date",
         },
       })
       .populate({
@@ -36,7 +36,7 @@ sportEventRouter
               path: "sport",
               model: "Sport",
             },
-          },          
+          },
         },
       })
       .then(
@@ -49,16 +49,14 @@ sportEventRouter
       )
       .catch((err) => next(err));
   })
-  .post(
-    cors.corsWithOptions,
-    authenticate.verifyUser,
-    authenticate.verifyEditor,
-    (req, res, next) => {
-      console.log("user: ", req.user);
+  .post(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyEditor, (req, res, next) => {
+    console.log("user: ", req.user);
+    if (req.body != null) {
+      req.body.owners = req.user._id;
       SportEvents.create(req.body)
         .then(
           (SportEvent) => {
-            console.log("SportEvent Created ", SportEvent);
+            console.log("SportEvent Created from router", SportEvent);
             res.statusCode = 200;
             res.setHeader("Content-Type", "application/json");
             res.json(SportEvent);
@@ -66,32 +64,28 @@ sportEventRouter
           (err) => next(err)
         )
         .catch((err) => next(err));
-    }
-  )
-  .put(
-    cors.corsWithOptions,
-    (req, res, next) => {
-      res.statusCode = 403;
-      res.end("PUT operation not supported on /SportEvents");
-    }
-  )
-  .delete(
-    cors.corsWithOptions,
-    authenticate.verifyUser,
-    authenticate.verifyAdmin,
-    (req, res, next) => {
-      SportEvents.remove({})
-        .then(
-          (resp) => {
-            res.statusCode = 200;
-            res.setHeader("Content-Type", "application/json");
-            res.json(resp);
-          },
-          (err) => next(err)
-        )
-        .catch((err) => next(err));
-    }
-  );
+    } else {
+      err = new Error("SportEvent not found in request body");
+      err.status = 404;
+      return next(err);
+    }      
+  })
+  .put(cors.corsWithOptions, (req, res, next) => {
+    res.statusCode = 403;
+    res.end("PUT operation not supported on /SportEvents");
+  })
+  .delete(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+    SportEvents.remove({})
+      .then(
+        (resp) => {
+          res.statusCode = 200;
+          res.setHeader("Content-Type", "application/json");
+          res.json(resp);
+        },
+        (err) => next(err)
+      )
+      .catch((err) => next(err));
+  });
 
 sportEventRouter
   .route("/:sportEventId")
