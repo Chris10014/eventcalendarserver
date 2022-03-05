@@ -36,8 +36,7 @@ const participantSchema = new Schema(
 
     team: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Team",
-      default: "",
+      ref: "Team"
     },
 
     estimatedFinishTime: {
@@ -46,12 +45,12 @@ const participantSchema = new Schema(
     },
 
     acceptTermsAndConditions: {
-      type: Date,
+      type: Boolean,
       required: true,
     },
 
     acceptRaceInfo: {
-      type: Date,
+      type: Boolean,
       required: true,
     },
 
