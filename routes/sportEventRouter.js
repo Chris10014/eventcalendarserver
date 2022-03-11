@@ -19,26 +19,7 @@ sportEventRouter
     SportEvents.find(req.query) //req.query handles search param fom the url ""...?param=value"
       .populate("country")
       .populate("organiser")
-      .populate({
-        path: "dates",
-        populate: {
-          path: "date",
-          model: "Date",
-        },
-      })
-      .populate({
-        path: "races",
-        populate: {
-          path: "race",
-          populate: {
-            path: "courses",
-            populate: {
-              path: "sport",
-              model: "Sport",
-            },
-          },
-        },
-      })
+      .populate("races")
       .then(
         (SportEvents) => {
           res.statusCode = 200;

@@ -8,23 +8,21 @@ const sportSchema = new Schema(
       required: true,
       unique: true,
     },
-    noun_de: {
+    sport_de: {
       type: String,
       required: true,
       unique: true,
     },
-    noun_en: {
+    sport_en: {
       type: String,
       required: true,
       unique: true,
     },
     verb_de: {
       type: String,
-      default: "",
     },
     verb_en: {
       type: String,
-      default: "",
     },
   },
   {

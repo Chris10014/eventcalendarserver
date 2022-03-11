@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+require("mongoose-type-email");
 
 const participantSchema = new Schema(
   {
@@ -14,12 +15,13 @@ const participantSchema = new Schema(
     },
 
     hideLastName: {
-        type: Boolean,
-        default: false
+      type: Boolean,
+      default: false,
     },
 
     gender: {
       type: String,
+      enum: ["male", "female", "diverse"],
       required: true,
     },
 
@@ -29,35 +31,20 @@ const participantSchema = new Schema(
     },
 
     email: {
-      type: String,
-      unique: true,
-      required: true
+      type: mongoose.SchemaTypes.Email,
+      required: true,
+      unique: true
     },
 
+    emailIsValid: {
+      type: Boolean,
+      required: true,
+      deafult: false
+    },
     team: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Team"
+      ref: "Team",
     },
-
-    estimatedFinishTime: {
-      type: String,
-      default: "",
-    },
-
-    acceptTermsAndConditions: {
-      type: Boolean,
-      required: true,
-    },
-
-    acceptRaceInfo: {
-      type: Boolean,
-      required: true,
-    },
-
-    validationCode: {
-        type: String,
-        default: "1234"
-    }
   },
   {
     timestamps: true,

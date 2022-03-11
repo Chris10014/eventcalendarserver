@@ -8,12 +8,17 @@ const dateSchema = new Schema({
   },
   end: {
     type: Date,
-    default: "",
   },
   sportEvent: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "SportEvent"
-  }
+    ref: "SportEvent",
+  },
+  races: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "race",
+    },
+  ],
 });
 
 var Dates = mongoose.model("Date", dateSchema);

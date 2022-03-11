@@ -5,7 +5,6 @@ const cors = require("./cors");
 
 
 const Dates = require('../models/dates');
-const sportEventRouter = require("./sportEventRouter");
 
 const dateRouter = express.Router();
 
@@ -18,46 +17,6 @@ dateRouter
   })
   .get(cors.cors, (req, res, next) => {
     Dates.find(req.query)
-      .populate("sportEvent")
-      .populate({
-        path: "sportEvent",
-        populate: {
-          path: "races",
-          populate: {
-            path: "race",
-          },
-        },
-      })
-      .populate({
-        path: "sportEvent",
-        populate: {
-          path: "races",
-          populate: {
-            path: "race",
-            populate: {
-              path: "courses",
-              populate: {
-                path: "sport",
-                model: "Sport",
-              },
-            },
-          },
-        },
-      })
-      .populate({
-        path: "sportEvent",
-        populate: {
-          path: "country",
-          model: "Country"
-        }
-      })
-      .populate({
-        path: "sportEvent",
-        populate: {
-          path: "organiser",
-          model: "Team"
-        }
-      })
       .then(
         (dates) => {
           res.statusCode = 200;
@@ -122,46 +81,6 @@ dateRouter
   })
   .get(cors.cors, (req, res, next) => {
     Dates.findById(req.params.dateId)
-      .populate("sportEvent")
-      .populate({
-        path: "sportEvent",
-        populate: {
-          path: "races",
-          populate: {
-            path: "race",
-          },
-        },
-      })
-      .populate({
-        path: "sportEvent",
-        populate: {
-          path: "races",
-          populate: {
-            path: "race",
-            populate: {
-              path: "courses",
-              populate: {
-                path: "sport",
-                model: "Sport",
-              },
-            },
-          },
-        },
-      })
-      .populate({
-        path: "sportEvent",
-        populate: {
-          path: "country",
-          model: "Country",
-        },
-      })
-      .populate({
-        path: "sportEvent",
-        populate: {
-          path: "organiser",
-          model: "Team",
-        },
-      })
       .then(
         (date) => {
           res.statusCode = 200;

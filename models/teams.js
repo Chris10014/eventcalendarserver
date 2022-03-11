@@ -20,10 +20,6 @@ const teamSchema = new Schema({
     ref: "Country",
     required: true
   },
-  sport: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Sport"
-  }
 });
 
 var Teams = mongoose.model("Team", teamSchema);

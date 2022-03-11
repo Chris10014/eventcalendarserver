@@ -3,24 +3,24 @@ const bodyParser = require("body-parser");
 var authenticate = require("../authenticate");
 const cors = require("./cors");
 
-const Races = require("../models/races");
+const RaceRegistrations = require("../models/raceRegistrations");
 
-const raceRouter = express.Router();
+const raceRegistrationRouter = express.Router();
 
-raceRouter.use(express.json());
+raceRegistrationRouter.use(express.json());
 
-raceRouter
+raceRegistrationRouter
   .route("/")
   .options(cors.corsWithOptions, (req, res) => {
     res.sendStatus(200);
   })
   .get(cors.cors, (req, res, next) => {
-    Races.find(req.query)
+    RaceRegistrations.find(req.query)
       .then(
-        (races) => {
+        (raceRegistrations) => {
           res.statusCode = 200;
           res.setHeader("Content-Type", "application/json");
-          res.json(races);
+          res.json(raceRegistrations);
         },
         (err) => next(err)
       )
@@ -28,13 +28,13 @@ raceRouter
   })
   .post(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     console.log("user: ", req.user);
-    Races.create(req.body)
+    RaceRegistrations.create(req.body)
       .then(
-        (race) => {
-          console.log("Raceday Created ", race);
+        (raceRegistration) => {
+          console.log("RaceRegistrationday Created ", raceRegistration);
           res.statusCode = 200;
           res.setHeader("Content-Type", "application/json");
-          res.json(race);
+          res.json(raceRegistration);
         },
         (err) => next(err)
       )
@@ -43,10 +43,10 @@ raceRouter
 
   .put(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     res.statusCode = 403;
-    res.end("PUT operation not supported on /races");
+    res.end("PUT operation not supported on /raceRegistrations");
   })
   .delete(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
-    Races.remove({})
+    RaceRegistrations.remove({})
       .then(
         (resp) => {
           res.statusCode = 200;
@@ -58,18 +58,18 @@ raceRouter
       .catch((err) => next(err));
   });
 
-raceRouter
-  .route("/:raceId")
+raceRegistrationRouter
+  .route("/:raceRegistrationId")
   .options(cors.corsWithOptions, (req, res) => {
     res.sendStatus(200);
   })
   .get(cors.cors, (req, res, next) => {
-    Races.findById(req.params.raceId)
+    RaceRegistrations.findById(req.params.raceRegistrationId)
       .then(
-        (race) => {
+        (raceRegistration) => {
           res.statusCode = 200;
           res.setHeader("Content-Type", "application/json");
-          res.json(Raceday);
+          res.json(RaceRegistrationday);
         },
         (err) => next(err)
       )
@@ -82,8 +82,8 @@ raceRouter
     (req, res, next) => {
       res.statusCode = 403;
       res.end(
-        "POST operation not supported on /races/" +
-          req.params.raceId
+        "POST operation not supported on /raceRegistrations/" +
+          req.params.raceRegistrationId
       );
     }
   )
@@ -92,18 +92,18 @@ raceRouter
     authenticate.verifyUser,
     authenticate.verifyAdmin,
     (req, res, next) => {
-      Races.findByIdAndUpdate(
-        req.params.raceId,
+      RaceRegistrations.findByIdAndUpdate(
+        req.params.raceRegistrationId,
         {
           $set: req.body,
         },
         { new: true }
       )
         .then(
-          (race) => {
+          (raceRegistration) => {
             res.statusCode = 200;
             res.setHeader("Content-Type", "application/json");
-            res.json(race);
+            res.json(raceRegistration);
           },
           (err) => next(err)
         )
@@ -115,7 +115,7 @@ raceRouter
     authenticate.verifyUser,
     authenticate.verifyAdmin,
     (req, res, next) => {
-      Races.findByIdAndRemove(req.params.raceId)
+      RaceRegistrations.findByIdAndRemove(req.params.raceRegistrationId)
         .then(
           (resp) => {
             res.statusCode = 200;
@@ -129,9 +129,9 @@ raceRouter
   );
 
 
-//End routes for races array within racedays
+//End routes for raceRegistrations array within raceRegistrationdays
 
 
-//End routes for courses array within racedays
+//End routes for courses array within raceRegistrationdays
 
-module.exports = raceRouter;
+module.exports = raceRegistrationRouter;

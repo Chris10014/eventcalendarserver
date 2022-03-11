@@ -30,6 +30,10 @@ const raceSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  multisport: {
+    type: Boolean,
+    default: false,
+  },
   membersOnly: {
     type: Boolean,
     default: false,

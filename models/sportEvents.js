@@ -1,27 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const ownerSchema = new Schema({
-  owner: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User"
-  }
-});
-
-const raceSchema = new Schema({
-  race: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Race"
-  }
-});
-
-const dateSchema = new Schema({
-  date: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Date"
-  }
-});
-
 const sportEventSchema = new Schema(
   {
     name: {
@@ -32,7 +11,7 @@ const sportEventSchema = new Schema(
     organiser: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Team",
-      required: true
+      required: true,
     },
     logo: {
       type: String,
@@ -44,7 +23,6 @@ const sportEventSchema = new Schema(
       type: String,
       required: true,
     },
-    dates: [dateSchema],
     city: {
       type: String,
       required: true,
@@ -58,13 +36,21 @@ const sportEventSchema = new Schema(
       ref: "Country",
       required: true,
     },
-    owners: [ownerSchema],
-
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     featured: {
       type: Boolean,
       default: false,
     },
-    races: [raceSchema],
+    races: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Race",
+      },
+    ],
   },
   {
     timestamps: true,

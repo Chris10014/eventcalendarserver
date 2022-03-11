@@ -17,12 +17,14 @@ var usersRouter = require("./routes/users");
 const uploadRouter = require("./routes/uploadRouter");
 
 var sportEventRouter = require("./routes/sportEventRouter");
+var raceRouter = require("./routes/raceRouter");
 var sportRouter = require("./routes/sportRouter");
 var countryRouter = require("./routes/countryRouter");
-var raceRouter = require("./routes/raceRouter");
 var teamRouter = require("./routes/teamRouter");
 var dateRouter = require("./routes/dateRouter");
 var participantRouter = require("./routes/participantRouter");
+var emailValidationRouter =  require("./routes/emailValidationRouter");
+var raceRegistrationRouter = require("./routes/raceRegistrationRouter");
 
 const mongoose = require("mongoose");
 
@@ -99,10 +101,12 @@ app.use("/imageUpload", uploadRouter);
 app.use("/sportEvents", sportEventRouter);
 app.use("/sports", sportRouter);
 app.use("/countries", countryRouter);
-app.use("/races", raceRouter);
 app.use("/teams", teamRouter);
 app.use("/dates", dateRouter);
+app.use("/races", raceRouter);
 app.use("/participants", participantRouter);
+app.use("/emailValidations", emailValidationRouter);
+app.use("/raceRegistrations", raceRegistrationRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

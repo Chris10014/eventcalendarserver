@@ -1208,7 +1208,14 @@
   "resolved" "https://registry.npmjs.org/mongoose-currency/-/mongoose-currency-0.2.0.tgz"
   "version" "0.2.0"
 
-"mongoose@^6.0.9", "mongoose@~> 4.x":
+"mongoose-type-email@^1.1.2":
+  "integrity" "sha512-ctqI4880XNaJ/h4o64Uife6tSW1jjBFiebX+Ss/9djnEE/RS/zuhjMBFACJYjowgTN+cgIuiqoHSk0aI+50BnQ=="
+  "resolved" "https://registry.npmjs.org/mongoose-type-email/-/mongoose-type-email-1.1.2.tgz"
+  "version" "1.1.2"
+  dependencies:
+    "validator" "^13.1.17"
+
+"mongoose@*", "mongoose@^6.0.9", "mongoose@~> 4.x":
   "integrity" "sha512-j9wcL8sltyIPBzMv785HFuGOdO8a5b70HX+e1q5QOogJxFofEXQoCcuurGlFSOe6j8M25qxHLzeVeKVcITeviQ=="
   "resolved" "https://registry.npmjs.org/mongoose/-/mongoose-6.0.9.tgz"
   "version" "6.0.9"
@@ -2001,6 +2008,11 @@
   "integrity" "sha1-n5VxD1CiZ5R7LMwSR0HBAoQn5xM="
   "resolved" "https://registry.npmjs.org/utils-merge/-/utils-merge-1.0.1.tgz"
   "version" "1.0.1"
+
+"validator@^13.1.17":
+  "integrity" "sha512-nYXQLCBkpJ8X6ltALua9dRrZDHVYxjJ1wgskNt1lH9fzGjs3tgojGSCBjmEPwkWS1y29+DrizMTW19Pr9uB2nw=="
+  "resolved" "https://registry.npmjs.org/validator/-/validator-13.7.0.tgz"
+  "version" "13.7.0"
 
 "vary@^1", "vary@~1.1.2":
   "integrity" "sha1-IpnwLG3tMNSllhsLn3RSShj2NPw="

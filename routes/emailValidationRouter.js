@@ -1,40 +1,40 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-var authenticate = require("../authenticate");
+var authenticate = require('../authenticate');
 const cors = require("./cors");
 
-const Races = require("../models/races");
 
-const raceRouter = express.Router();
+const EmailValidations = require('../models/emailValidation');
 
-raceRouter.use(express.json());
+const emailValidationRouter = express.Router();
 
-raceRouter
+emailValidationRouter.use(express.json());
+
+emailValidationRouter
   .route("/")
   .options(cors.corsWithOptions, (req, res) => {
     res.sendStatus(200);
   })
   .get(cors.cors, (req, res, next) => {
-    Races.find(req.query)
+    EmailValidations.find(req.query)
       .then(
-        (races) => {
+        (emailValidations) => {
           res.statusCode = 200;
           res.setHeader("Content-Type", "application/json");
-          res.json(races);
+          res.json(emailValidations);
         },
         (err) => next(err)
       )
       .catch((err) => next(err));
   })
-  .post(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
-    console.log("user: ", req.user);
-    Races.create(req.body)
+  .post(cors.corsWithOptions, (req, res, next) => {
+    console.log("email: ", req.email);
+    EmailValidations.create(req.body)
       .then(
-        (race) => {
-          console.log("Raceday Created ", race);
+        (emailValidation) => {
           res.statusCode = 200;
           res.setHeader("Content-Type", "application/json");
-          res.json(race);
+          res.json(emailValidation);
         },
         (err) => next(err)
       )
@@ -43,10 +43,10 @@ raceRouter
 
   .put(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     res.statusCode = 403;
-    res.end("PUT operation not supported on /races");
+    res.end("PUT operation not supported on /emailValidations");
   })
   .delete(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
-    Races.remove({})
+    EmailValidations.remove({})
       .then(
         (resp) => {
           res.statusCode = 200;
@@ -58,18 +58,18 @@ raceRouter
       .catch((err) => next(err));
   });
 
-raceRouter
-  .route("/:raceId")
+emailValidationRouter
+  .route("/:emailValidationId")
   .options(cors.corsWithOptions, (req, res) => {
     res.sendStatus(200);
   })
   .get(cors.cors, (req, res, next) => {
-    Races.findById(req.params.raceId)
+    EmailValidations.findById(req.params.emailValidationId)
       .then(
-        (race) => {
+        (emailValidation) => {
           res.statusCode = 200;
           res.setHeader("Content-Type", "application/json");
-          res.json(Raceday);
+          res.json(emailValidation);
         },
         (err) => next(err)
       )
@@ -81,10 +81,7 @@ raceRouter
     authenticate.verifyAdmin,
     (req, res, next) => {
       res.statusCode = 403;
-      res.end(
-        "POST operation not supported on /races/" +
-          req.params.raceId
-      );
+      res.end("POST operation not supported on /emailValidations/" + req.params.emailValidationId);
     }
   )
   .put(
@@ -92,18 +89,18 @@ raceRouter
     authenticate.verifyUser,
     authenticate.verifyAdmin,
     (req, res, next) => {
-      Races.findByIdAndUpdate(
-        req.params.raceId,
+      EmailValidations.findByIdAndUpemailValidation(
+        req.params.emailValidationId,
         {
           $set: req.body,
         },
         { new: true }
       )
         .then(
-          (race) => {
+          (emailValidation) => {
             res.statusCode = 200;
             res.setHeader("Content-Type", "application/json");
-            res.json(race);
+            res.json(emailValidation);
           },
           (err) => next(err)
         )
@@ -112,10 +109,8 @@ raceRouter
   )
   .delete(
     cors.corsWithOptions,
-    authenticate.verifyUser,
-    authenticate.verifyAdmin,
     (req, res, next) => {
-      Races.findByIdAndRemove(req.params.raceId)
+      EmailValidations.findByIdAndRemove(req.params.emailValidationId)
         .then(
           (resp) => {
             res.statusCode = 200;
@@ -127,11 +122,5 @@ raceRouter
         .catch((err) => next(err));
     }
   );
-
-
-//End routes for races array within racedays
-
-
-//End routes for courses array within racedays
-
-module.exports = raceRouter;
+  
+module.exports = emailValidationRouter;
