@@ -13,10 +13,14 @@ const dateSchema = new Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "SportEvent",
   },
+  regOpen: {
+    type: Boolean,
+    default: false
+  },
   races: [
     {
       type: Schema.Types.ObjectId,
-      ref: "race",
+      ref: "Race",
     },
   ],
 });

@@ -21,10 +21,10 @@ sportEventRouter
       .populate("organiser")
       .populate("races")
       .then(
-        (SportEvents) => {
+        (sportEvents) => {
           res.statusCode = 200;
           res.setHeader("Content-Type", "application/json");
-          res.json(SportEvents);
+          res.json(sportEvents);
         },
         (err) => next(err)
       )

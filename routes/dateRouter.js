@@ -16,7 +16,19 @@ dateRouter
     res.sendStatus(200);
   })
   .get(cors.cors, (req, res, next) => {
-    Dates.find(req.query)
+    Dates.find(req.query)      
+      .populate({
+        path: "sportEvent",
+        populate: {
+          path: "organiser",
+          model: "Team"
+        },
+        populate: {
+          path: "country",
+          model: "Country"
+        }
+      })
+      .populate("races")
       .then(
         (dates) => {
           res.statusCode = 200;

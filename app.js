@@ -25,6 +25,7 @@ var dateRouter = require("./routes/dateRouter");
 var participantRouter = require("./routes/participantRouter");
 var emailValidationRouter =  require("./routes/emailValidationRouter");
 var raceRegistrationRouter = require("./routes/raceRegistrationRouter");
+var sendMailRouter = require("./routes/sendMailRouter");
 
 const mongoose = require("mongoose");
 
@@ -107,6 +108,7 @@ app.use("/races", raceRouter);
 app.use("/participants", participantRouter);
 app.use("/emailValidations", emailValidationRouter);
 app.use("/raceRegistrations", raceRegistrationRouter);
+app.use("/sendMails", sendMailRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

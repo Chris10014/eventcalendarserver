@@ -17,12 +17,11 @@ teamRouter
   .get(cors.cors, (req, res, next) => {
     Teams.find(req.query)
     .populate("country")
-    .populate("sport")
       .then(
-        (Teams) => {
+        (teams) => {
           res.statusCode = 200;
           res.setHeader("Content-Type", "application/json");
-          res.json(Teams);
+          res.json(teams);
         },
         (err) => next(err)
       )
