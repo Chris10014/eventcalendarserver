@@ -14,8 +14,8 @@ const transporter = nodemailer.createTransport({
   host: "smtp.mailtrap.io",
   port: 2525,
   auth: {
-    user: "e32fda1bf53063",
-    pass: "10514b0571a264",
+    user: process.env.MAILTRAP_USERNAME,
+    pass: process.env.MAILTRAP_PASSWORD,
   },
 });
 
@@ -28,7 +28,7 @@ sendMailRouter
     const { to, subject, text } = req.body;
 
     const mailOptions = {
-      from: "youremail@gmail.com", // sender address
+      from: "anmeldung@1zf.de", // sender address
       to: to, // list of receivers
       subject: subject,
       text: text,
@@ -37,7 +37,8 @@ sendMailRouter
 
     transporter.sendMail(mailOptions, (err, info) => {
       if (err) {
-          return console.log(error);
+        res.status(501).send({message: "Mail not send." + " Reason: " + err.response})
+          return console.log(err);
       }
       res.status(200).send({message: "mail send", message_id: info.messageId});
     });
